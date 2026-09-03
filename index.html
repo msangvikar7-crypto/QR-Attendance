@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 15px;
+      background: #f4f4f4;
+    }
+
+    h2 {
+      margin: 10px 0 15px;
+    }
+
+    #reader {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      padding: 5px;
+    }
+
+    #message {
+      margin: 20px auto;
+      max-width: 500px;
+      padding: 15px;
+      border-radius: 8px;
+      background: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #555;
+      font-weight: normal;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>QR Attendance</h2>
+
+  <div id="reader"></div>
+
+  <div id="message">
+    Camera start ho rahi hai...
+    <div class="small">Camera permission Allow karein.</div>
+  </div>
+
+<script>
+
+let scanning = false;
+let alreadyScanned = false;
+let html5QrCode = null;
+
+/*
+  Aapka Google Apps Script Web App
+*/
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxtHQ_UArWbCpLO_N6GC9dTC794aCFseC1-9e7Yqvhhr1zUkJ2Sd7jW56r8gzh5t99o/exec";
+
+
+function showMessage(text) {
+  document.getElementById("message").innerHTML = text;
+}
+
+
+async function startCamera() {
+
+  try {
+
+    html5QrCode = new Html5Qrcode("reader");
+
+    showMessage(
+      "📷 Camera start ho rahi hai...<br><br>" +
+      "<span class='small'>Permission aaye to Allow karein.</span>"
+    );
+
+    const cameras =
+      await Html5Qrcode.getCameras();
+
+    if (!cameras || cameras.length === 0) {
+
+      showMessage(
+        "❌ Camera detect nahi hua."
+      );
+
+      return;
+    }
+
+    let cameraId = cameras[0].id;
+
+    for (let i = 0; i < cameras.length; i++) {
+
+      const label =
+        (cameras[i].label || "").toLowerCase();
+
+      if (
+        label.includes("back") ||
+        label.includes("rear") ||
+        label.includes("environment")
+      ) {
+        cameraId = cameras[i].id;
+        break;
+      }
+    }
+
+    await html5QrCode.start(
+
+      cameraId,
+
+      {
+        fps: 10,
+
+        qrbox: {
+          width: 250,
+          height: 250
+        }
+      },
+
+      onScanSuccess,
+
+      function(errorMessage) {
+        // Normal scanning messages ignore
+      }
+
+    );
+
+    scanning = true;
+
+    showMessage(
+      "📷 QR code camera ke saamne rakhiye." +
+      "<div class='small'>Scan automatic hoga.</div>"
+    );
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+    showMessage(
+      "❌ Camera start nahi hua.<br><br>" +
+      "<b>" +
+      (error.name || "Camera Error") +
+      "</b><br><br>" +
+      "<span class='small'>" +
+      (error.message || String(error)) +
+      "</span>"
+    );
+
+  }
+
+}
+
+
+async function onScanSuccess(decodedText) {
+
+  if (!scanning || alreadyScanned) {
+    return;
+  }
+
+  alreadyScanned = true;
+  scanning = false;
+
+  const employeeId =
+    decodedText.trim();
+
+  try {
+
+    await html5QrCode.stop();
+
+  } catch (e) {
+    console.log(e);
+  }
+
+
+  showMessage(
+    "👤 Employee ID: " +
+    employeeId +
+    "<br><br>" +
+    "📍 Location check ho rahi hai..."
+  );
+
+
+  if (!navigator.geolocation) {
+
+    showMessage(
+      "❌ Is mobile me location available nahi hai."
+    );
+
+    return;
+  }
+
+
+  navigator.geolocation.getCurrentPosition(
+
+    function(position) {
+
+      const latitude =
+        position.coords.latitude;
+
+      const longitude =
+        position.coords.longitude;
+
+
+      showMessage(
+        "👤 Employee: " +
+        employeeId +
+        "<br><br>" +
+        "📍 Location mil gayi.<br>" +
+        "Attendance mark ho rahi hai..."
+      );
+
+
+      /*
+        Apps Script ko data bhejna
+      */
+
+      const url =
+        APPS_SCRIPT_URL +
+        "?action=punch" +
+        "&employeeId=" +
+        encodeURIComponent(employeeId) +
+        "&latitude=" +
+        encodeURIComponent(latitude) +
+        "&longitude=" +
+        encodeURIComponent(longitude);
+
+
+      window.location.href = url;
+
+    },
+
+
+    function(error) {
+
+      let msg =
+        "❌ Location nahi mil rahi.";
+
+      if (error.code === 1) {
+
+        msg =
+          "❌ Location permission DENIED hai.<br><br>" +
+          "Browser me Location = Allow karein.";
+
+      }
+
+      if (error.code === 2) {
+
+        msg =
+          "❌ Location available nahi hai.<br><br>" +
+          "Mobile Location/GPS ON karein.";
+
+      }
+
+      if (error.code === 3) {
+
+        msg =
+          "❌ Location request timeout.<br><br>" +
+          "Dobara try karein.";
+
+      }
+
+      showMessage(msg);
+
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
+
+  );
+
+}
+
+
+window.addEventListener(
+  "load",
+  function() {
+    startCamera();
+  }
+);
+
+</script>
+
+</body>
+</html>
