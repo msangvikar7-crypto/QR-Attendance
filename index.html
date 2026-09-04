@@ -156,7 +156,7 @@ function onScanSuccess(decodedText) {
       );
 
 
-      // Apps Script ko attendance bhejna
+      // Apps Script ko background me request bhejna
       const url =
         APPS_SCRIPT_URL +
         "?action=punch" +
@@ -164,8 +164,41 @@ function onScanSuccess(decodedText) {
         "&latitude=" + encodeURIComponent(latitude) +
         "&longitude=" + encodeURIComponent(longitude);
 
+      fetch(url)
+        .then(function(response) {
+          return response.text();
+        })
+        .then(function(result) {
 
-      window.location.href = url;
+          showMessage(
+            "✅ Attendance save ho gayi!" +
+            "<br><br>👤 Employee: " +
+            employeeId +
+            "<br><br>📷 Scanner dobara start ho raha hai..."
+          );
+
+          setTimeout(function() {
+
+            scanning = true;
+
+            document.getElementById("message").innerHTML =
+              "📷 QR Code scan karein";
+
+            startCamera();
+
+          }, 2000);
+
+        })
+        .catch(function(error) {
+
+          scanning = true;
+
+          showMessage(
+            "❌ Attendance save nahi hui.<br><br>" +
+            error
+          );
+
+        });
 
     },
 
@@ -199,8 +232,6 @@ function onScanSuccess(decodedText) {
 
   );
 }
-
-
 // Camera start
 startCamera();
 
