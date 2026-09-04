@@ -164,44 +164,41 @@ function onScanSuccess(decodedText) {
         "&latitude=" + encodeURIComponent(latitude) +
         "&longitude=" + encodeURIComponent(longitude);
 
-      fetch(url)
-        .then(function(response) {
-          return response.text();
-        })
-        .then(function(result) {
+     fetch(url, {
+  method: "GET",
+  mode: "no-cors"
+})
+.then(function() {
 
-          showMessage(
-            "✅ Attendance save ho gayi!" +
-            "<br><br>👤 Employee: " +
-            employeeId +
-            "<br><br>📷 Scanner dobara start ho raha hai..."
-          );
+  showMessage(
+    "✅ Attendance save ho gayi!" +
+    "<br><br>👤 Employee: " +
+    employeeId +
+    "<br><br>📷 Scanner dobara start ho raha hai..."
+  );
 
-          setTimeout(function() {
+  setTimeout(function() {
 
-            scanning = true;
+    scanning = true;
 
-            document.getElementById("message").innerHTML =
-              "📷 QR Code scan karein";
+    document.getElementById("message").innerHTML =
+      "📷 QR Code scan karein";
 
-            startCamera();
+    startCamera();
 
-          }, 2000);
+  }, 2000);
 
-        })
-        .catch(function(error) {
+})
+.catch(function(error) {
 
-          scanning = true;
+  scanning = true;
 
-          showMessage(
-            "❌ Attendance save nahi hui.<br><br>" +
-            error
-          );
+  showMessage(
+    "❌ Request send nahi hui.<br><br>" +
+    error
+  );
 
-        });
-
-    },
-
+});
     function(error) {
 
       scanning = true;
