@@ -195,7 +195,84 @@ function onScanSuccess(decodedText) {
 
 
   const employeeId = decodedText.trim();
+// ==============================
+// MASTER QR - DEVICE REGISTRATION
+// ==============================
 
+if (employeeId === "MASTER_REGISTER") {
+
+  html5QrCode.stop().catch(function() {});
+
+  const registeredEmployeeId =
+    prompt("Employee ID enter karein (example: EMP001):");
+
+  if (!registeredEmployeeId) {
+
+    showMessage("❌ Registration cancel ho gaya.");
+
+    setTimeout(function() {
+      scanning = true;
+      showMessage("📷 QR Code scan karein");
+      startCamera();
+    }, 2000);
+
+    return;
+  }
+
+  let deviceId = localStorage.getItem("QR_DEVICE_ID");
+
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem("QR_DEVICE_ID", deviceId);
+  }
+
+  showMessage(
+    "📱 Mobile register ho raha hai...<br><br>" +
+    "👤 Employee: " + registeredEmployeeId
+  );
+
+  const registerUrl =
+    APPS_SCRIPT_URL +
+    "?action=register" +
+    "&employeeId=" + encodeURIComponent(registeredEmployeeId) +
+    "&deviceId=" + encodeURIComponent(deviceId);
+
+  fetch(registerUrl, {
+    method: "GET",
+    mode: "no-cors"
+  })
+  .then(function() {
+
+    showMessage(
+      "✅ Registration request send ho gayi!" +
+      "<br><br>👤 Employee: " + registeredEmployeeId +
+      "<br><br>📱 Mobile registration complete karne ke liye sheet check karein."
+    );
+
+    setTimeout(function() {
+      scanning = true;
+      showMessage("📷 QR Code scan karein");
+      startCamera();
+    }, 3000);
+
+  })
+  .catch(function(error) {
+
+    scanning = true;
+
+    showMessage(
+      "❌ Registration request nahi bheji gayi.<br><br>" +
+      error
+    );
+
+    setTimeout(function() {
+      showMessage("📷 QR Code scan karein");
+      startCamera();
+    }, 3000);
+  });
+
+  return;
+}
 
   showMessage(
 
