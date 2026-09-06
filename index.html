@@ -199,81 +199,222 @@ function onScanSuccess(decodedText) {
 // MASTER QR - DEVICE REGISTRATION
 // ==============================
 
+// ==============================
+// MASTER QR - REGISTER / PUNCH
+// ==============================
+
 if (employeeId === "MASTER_REGISTER") {
 
   html5QrCode.stop().catch(function() {});
 
-  const registeredEmployeeId =
-    prompt("Employee ID enter karein (example: EMP001):");
+  // Mobile ka saved Device ID
+  let deviceId = localStorage.getItem("QR_DEVICE_ID");
 
-  if (!registeredEmployeeId) {
+  // ==========================================
+  // FIRST TIME MOBILE → REGISTRATION
+  // ==========================================
 
-    showMessage("❌ Registration cancel ho gaya.");
+  if (!deviceId) {
 
-    setTimeout(function() {
+    const registeredEmployeeId =
+      prompt("Employee ID enter karein (example: EMP001):");
+
+    if (!registeredEmployeeId) {
+
+      showMessage("❌ Registration cancel ho gaya.");
+
+      setTimeout(function() {
+        scanning = true;
+        showMessage("📷 QR Code scan karein");
+        startCamera();
+      }, 2000);
+
+      return;
+    }
+
+    deviceId = crypto.randomUUID();
+
+    localStorage.setItem(
+      "QR_DEVICE_ID",
+      deviceId
+    );
+
+    showMessage(
+      "📱 Mobile register ho raha hai..." +
+      "<br><br>👤 Employee: " +
+      registeredEmployeeId
+    );
+
+    const registerUrl =
+      APPS_SCRIPT_URL +
+      "?action=register" +
+      "&employeeId=" +
+      encodeURIComponent(registeredEmployeeId) +
+      "&deviceId=" +
+      encodeURIComponent(deviceId);
+
+    fetch(registerUrl, {
+      method: "GET",
+      mode: "no-cors"
+    })
+    .then(function() {
+
+      showMessage(
+        "✅ Mobile registration request send ho gayi!" +
+        "<br><br>👤 Employee: " +
+        registeredEmployeeId +
+        "<br><br>📱 Devices sheet check karein."
+      );
+
+      setTimeout(function() {
+
+        scanning = true;
+
+        showMessage(
+          "📷 QR Code scan karein"
+        );
+
+        startCamera();
+
+      }, 3000);
+
+    })
+    .catch(function(error) {
+
       scanning = true;
-      showMessage("📷 QR Code scan karein");
-      startCamera();
-    }, 2000);
+
+      showMessage(
+        "❌ Registration request nahi bheji gayi." +
+        "<br><br>" +
+        error
+      );
+
+    });
 
     return;
   }
 
-  let deviceId = localStorage.getItem("QR_DEVICE_ID");
 
-  if (!deviceId) {
-    deviceId = crypto.randomUUID();
-    localStorage.setItem("QR_DEVICE_ID", deviceId);
-  }
+  // ==========================================
+  // REGISTERED MOBILE → AUTOMATIC ATTENDANCE
+  // ==========================================
 
   showMessage(
-    "📱 Mobile register ho raha hai...<br><br>" +
-    "👤 Employee: " + registeredEmployeeId
+    "📱 Registered mobile detected." +
+    "<br><br>📍 Location check ho rahi hai..."
   );
 
-  const registerUrl =
-    APPS_SCRIPT_URL +
-    "?action=register" +
-    "&employeeId=" + encodeURIComponent(registeredEmployeeId) +
-    "&deviceId=" + encodeURIComponent(deviceId);
 
-  fetch(registerUrl, {
-    method: "GET",
-    mode: "no-cors"
-  })
-  .then(function() {
+  navigator.geolocation.getCurrentPosition(
 
-    showMessage(
-      "✅ Registration request send ho gayi!" +
-      "<br><br>👤 Employee: " + registeredEmployeeId +
-      "<br><br>📱 Mobile registration complete karne ke liye sheet check karein."
-    );
+    function(position) {
 
-    setTimeout(function() {
+      const latitude =
+        position.coords.latitude;
+
+      const longitude =
+        position.coords.longitude;
+
+
+      showMessage(
+        "📍 Location mil gayi." +
+        "<br><br>⏳ Attendance save ho rahi hai..."
+      );
+
+
+      const punchUrl =
+        APPS_SCRIPT_URL +
+        "?action=devicePunch" +
+        "&deviceId=" +
+        encodeURIComponent(deviceId) +
+        "&latitude=" +
+        encodeURIComponent(latitude) +
+        "&longitude=" +
+        encodeURIComponent(longitude);
+
+
+      fetch(punchUrl, {
+        method: "GET",
+        mode: "no-cors"
+      })
+
+      .then(function() {
+
+        showMessage(
+          "✅ Attendance request send ho gayi!" +
+          "<br><br>📱 Registered mobile se punch complete." +
+          "<br><br>📷 Scanner dobara start ho raha hai..."
+        );
+
+
+        setTimeout(function() {
+
+          scanning = true;
+
+          showMessage(
+            "📷 QR Code scan karein"
+          );
+
+          startCamera();
+
+        }, 2500);
+
+      })
+
+      .catch(function(error) {
+
+        scanning = true;
+
+        showMessage(
+          "❌ Attendance request nahi bheji gayi." +
+          "<br><br>" +
+          error
+        );
+
+      });
+
+    },
+
+
+    function(error) {
+
       scanning = true;
-      showMessage("📷 QR Code scan karein");
-      startCamera();
-    }, 3000);
 
-  })
-  .catch(function(error) {
+      let msg =
+        "❌ GPS location nahi mil rahi.";
 
-    scanning = true;
+      if (error.code === 1) {
+        msg =
+          "❌ Location permission allow karein.";
+      }
 
-    showMessage(
-      "❌ Registration request nahi bheji gayi.<br><br>" +
-      error
-    );
+      if (error.code === 2) {
+        msg =
+          "❌ Location available nahi hai.";
+      }
 
-    setTimeout(function() {
-      showMessage("📷 QR Code scan karein");
-      startCamera();
-    }, 3000);
-  });
+      if (error.code === 3) {
+        msg =
+          "❌ Location timeout.";
+      }
+
+      showMessage(msg);
+
+    },
+
+
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
+
+  );
 
   return;
 }
 
+ 
   showMessage(
 
     "👤 Employee ID: " +
