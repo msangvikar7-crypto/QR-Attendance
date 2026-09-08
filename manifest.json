@@ -1,0 +1,15 @@
+{
+  "name": "Blue Packaging Attendance",
+  "short_name": "BP Attendance",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "blue_packaging_app_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
