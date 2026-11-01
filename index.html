@@ -1,626 +1,76 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="blue_packaging_app_icon.png">
-<link rel="apple-touch-icon" href="blue_packaging_app_icon.png">
-<link rel="manifest" href="manifest.json">
-  <title>QR Attendance</title>
-
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
-  <style>
-
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .box {
-      background: white;
-      max-width: 450px;
-      margin: auto;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    }
-
-    h2 {
-      margin-top: 5px;
-    }
-
-    #reader {
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    #message {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-  <div class="box">
-
-    <h2>📱 QR Attendance</h2>
-
-    <div id="reader"></div>
-
-    <div id="message">
-      📷 QR Code scan karein
-    </div>
-
-  </div>
-
-
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><base target="_top">
+<script src="https://unpkg.com/html5-qrcode"></script>
+<style>
+:root{--navy:#082b59;--blue:#075bc5;--blue2:#1684ff;--ink:#10284a;--muted:#687b96;--line:#e4ebf5;--bg:#f3f7fc;--green:#119447;--red:#df3546;--orange:#ef9415;--purple:#793fe0;--teal:#087f8c;--shadow:0 12px 32px rgba(13,49,91,.10)}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eaf2fc 0,#f7f9fd 42%,#eef3fa 100%);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);min-height:100vh}.app{max-width:560px;margin:0 auto;padding:12px 14px 28px}.top{background:linear-gradient(135deg,#06275a,#0759b9 62%,#1684ff);color:#fff;border-radius:24px;padding:18px 18px 20px;box-shadow:0 14px 30px #064c9b30;display:flex;align-items:center;gap:13px}.logo{width:54px;height:54px;border-radius:17px;background:#ffffff20;border:1px solid #ffffff55;display:grid;place-items:center;font-size:28px;flex:none}.brand{font-size:21px;font-weight:850;letter-spacing:.2px}.sub{font-size:12px;opacity:.86;margin-top:3px;letter-spacing:1.3px;text-transform:uppercase}.gear{margin-left:auto;border:1px solid #ffffff40;background:#ffffff18;color:white;width:42px;height:42px;border-radius:14px;font-size:20px}.card{background:#fff;border:1px solid #e7edf6;border-radius:22px;padding:15px;margin-top:13px;box-shadow:var(--shadow)}.location{display:grid;grid-template-columns:1fr 1fr;gap:8px}.info{background:#f3f7fd;border-radius:15px;padding:11px 12px;min-height:66px}.info strong{display:block;font-size:13px}.info small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.ok{color:#11833e}.section-title{font-weight:800;font-size:14px;margin:0 0 10px}.camera-card{padding:10px;background:#0b2344;border:1px solid #1c4e87;overflow:hidden}.camera-head{display:flex;align-items:center;justify-content:space-between;color:#fff;padding:3px 4px 10px}.live{font-size:11px;background:#123f70;border:1px solid #2c6eae;padding:6px 9px;border-radius:20px}.dot{display:inline-block;width:7px;height:7px;background:#27d77a;border-radius:50%;margin-right:5px;box-shadow:0 0 0 4px #27d77a22}#reader{width:100%;min-height:245px;border:0!important;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#152e50,#091a32);display:flex;align-items:center;justify-content:center}#reader video{object-fit:cover!important;border-radius:16px}#reader__dashboard_section_csr button,#reader button{border:0!important;border-radius:10px!important;background:#1684ff!important;color:white!important;padding:9px 13px!important;font-weight:700!important}#reader__dashboard_section_swaplink{color:#fff!important}.camera-hint{color:#d9e8fb;text-align:center;font-size:11px;padding:9px 4px 2px}.camera-actions{display:flex;gap:8px;margin-top:9px}.small-action{background:#173e6d;border:1px solid #376493;color:#fff;border-radius:12px;padding:10px;font-size:12px;font-weight:700;flex:1}.select-label{font-size:13px;font-weight:800;display:block;margin-bottom:8px}.select-row{display:flex;gap:8px}select{min-width:0;flex:1;border:1px solid #d8e2f0;background:#f9fbff;color:var(--ink);padding:14px 12px;border-radius:13px;font-size:14px;outline:none}button{cursor:pointer;font-family:inherit}.primary{border:0;background:linear-gradient(135deg,#0865d6,#1684ff);color:#fff;border-radius:13px;padding:13px 15px;font-weight:800;font-size:13px;box-shadow:0 6px 14px #0872e52b}.manual-toggle{width:100%;margin-top:10px;border:1px solid #d7e2f2;background:linear-gradient(100deg,#f0edff,#f8f6ff);color:#5832b6;border-radius:14px;padding:13px;font-weight:800;font-size:13px}.manual-toggle.active{background:linear-gradient(100deg,#6234c9,#8a4be8);color:#fff;border:0}.hint{font-size:11px;color:var(--muted);line-height:1.5;margin:9px 2px 0}.status{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f7fc;border:1px solid #e4ebf5;border-radius:13px;padding:11px;font-size:12px;line-height:1.5;color:#425975;margin-top:10px}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.chip{background:#eef4fc;color:#315477;padding:6px 9px;border-radius:20px;font-size:10px;font-weight:750}.screen{display:none}.screen.active{display:block}.back{border:0;background:#eaf2fd;color:#0757ad;border-radius:12px;padding:10px 13px;font-weight:800;margin-bottom:10px}.employee-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,#eaf3ff,#f6f9ff);border:1px solid #dce9fa;border-radius:17px;padding:13px}.avatar{width:47px;height:47px;border-radius:15px;background:#d7e9ff;color:#075bc5;display:grid;place-items:center;font-size:24px;flex:none}.emp-id{font-size:11px;color:#1261b5;font-weight:850;letter-spacing:.5px}.emp-name{font-size:15px;font-weight:850;margin-top:3px}.change{margin-left:auto;border:1px solid #cbdcf2;background:white;color:#0755a8;border-radius:10px;padding:9px;font-size:11px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.punch{border:0;border-radius:19px;color:#fff;min-height:120px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 9px 18px #122e501c}.punch .ico{font-size:28px;line-height:1.2}.punch strong{font-size:17px;margin-top:7px}.punch small{font-size:11px;margin-top:4px;opacity:.92}.punch:disabled{opacity:.42;filter:grayscale(.5)}.in{background:linear-gradient(145deg,#0c9b4d,#087b3b)}.out{background:linear-gradient(145deg,#f04c55,#d9283b)}.lout{background:linear-gradient(145deg,#ffad22,#e77b00)}.lin{background:linear-gradient(145deg,#9255ed,#6829c8)}.status-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}.shift-pill{background:#fff2d8;color:#9b5a00;border-radius:20px;padding:7px 10px;font-size:11px;font-weight:800}.punch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #e9eff7;border-radius:14px;overflow:hidden}.punch-cell{text-align:center;padding:11px 3px;background:#fbfcfe;border-right:1px solid #e9eff7}.punch-cell:last-child{border:0}.punch-cell small{display:block;color:#647995;font-size:9px;font-weight:750}.punch-cell b{display:block;margin-top:6px;font-size:13px;color:#0a5dbb}.summary{display:grid;grid-template-columns:1fr 1fr;margin-top:9px;background:#edf5ff;border-radius:13px;overflow:hidden}.summary div{text-align:center;padding:12px}.summary div+div{border-left:1px solid #dbe8f8}.summary small{display:block;color:#637b9a;font-size:10px}.summary b{display:block;color:#075bc5;font-size:18px;margin-top:4px}.settings{margin-top:12px}.settings summary{cursor:pointer;color:#54708f;font-size:12px;font-weight:750;padding:7px}.settings button{width:100%;margin-top:7px}.foot{text-align:center;color:#91a0b5;font-size:10px;padding:18px 0 5px}
+@media(max-width:380px){.app{padding:9px}.brand{font-size:18px}.punch{min-height:108px}.punch strong{font-size:15px}.location{gap:6px}.info{padding:9px}}
+</style></head>
+<body><main class="app">
+<section id="homeScreen" class="screen active">
+ <header class="top"><div class="logo">▣</div><div><div class="brand">Blue Packaging</div><div class="sub">Employee Attendance</div></div><button class="gear" onclick="toggleSettings()" aria-label="Settings">⚙</button></header>
+ <div class="card location"><div class="info"><strong id="gpsState" class="ok">● Location ready</strong><small id="gpsDetail">GPS check happens during punch</small></div><div class="info"><strong id="todayDate">Today</strong><small id="todayTime">--:--</small></div></div>
+ <div class="card camera-card"><div class="camera-head"><b style="font-size:13px">QR SCANNER</b><span class="live"><i class="dot"></i> AUTO SCAN</span></div><div id="reader"><div style="color:#c6d9f2;text-align:center;padding:20px;font-size:13px">Starting camera…</div></div><div class="camera-hint">Employee QR scan karein — automatic IN / OUT punch</div><div class="camera-actions"><button class="small-action" onclick="startScanner()">↻ Restart Camera</button><button class="small-action" onclick="stopScanner()">Ⅱ Pause Camera</button></div></div>
+ <div class="card"><label class="select-label" for="employee">SELECT EMPLOYEE</label><div class="select-row"><select id="employee"><option value="">Loading employees…</option></select><button class="primary" onclick="openSelectedEmployee()">OPEN →</button></div><button id="manualToggle" class="manual-toggle" onclick="toggleManualMode()">✦ &nbsp; MANUAL MODE <span style="float:right">OFF</span></button><div class="hint" id="modeHint">Manual Mode ON karne par QR scanner pause hoga. Employee select karke attendance screen khol sakte hain.</div><div id="homeStatus" class="status">App is starting…</div><div class="chips"><span id="net" class="chip">Checking network…</span><span id="pending" class="chip">Pending: 0</span><span id="empCount" class="chip">Employees: —</span></div></div>
+ <details class="card settings" id="settingsPanel"><summary>Device registration & sync settings</summary><div id="device" class="hint"></div><button class="primary" onclick="requestRegistration()">REQUEST MOBILE REGISTRATION</button><div class="hint">Admin Devices sheet mein is mobile ko Active = YES karein. Scanner punch ke liye device registration zaroori hai.</div><button class="primary" onclick="syncQueue()">SYNC PENDING PUNCHES</button></details>
+</section>
+<section id="attendanceScreen" class="screen">
+ <header class="top"><button class="back" onclick="goHome()">←</button><div class="logo">▣</div><div><div class="brand">Blue Packaging</div><div class="sub">Attendance Console</div></div></header>
+ <div class="card location"><div class="info"><strong id="attGps" class="ok">● GPS verification</strong><small>100 m company geo-fence</small></div><div class="info"><strong id="attDate">Today</strong><small id="attTime">--:--</small></div></div>
+ <div class="card"><div class="employee-banner"><div class="avatar">♙</div><div style="min-width:0"><div class="emp-id" id="attEmpId">EMP---</div><div class="emp-name" id="attEmpName">Employee</div></div><button class="change" onclick="goHome()">CHANGE</button></div>
+ <div class="actions">
+  <button id="btnIn" class="punch in" onclick="manualPunch('IN')"><span class="ico">↪</span><strong>IN</strong><small>Start / Resume Work</small></button>
+  <button id="btnOut" class="punch out" onclick="manualPunch('OUT')"><span class="ico">↗</span><strong>OUT</strong><small>End / Pause Work</small></button>
+  <button id="btnLunchOut" class="punch lout" onclick="manualPunch('LUNCH OUT')"><span class="ico">☕</span><strong>LUNCH OUT</strong><small>Start Lunch</small></button>
+  <button id="btnLunchIn" class="punch lin" onclick="manualPunch('LUNCH IN')"><span class="ico">☕</span><strong>LUNCH IN</strong><small>Back from Lunch</small></button>
+ </div><div id="attStatus" class="status">Select an action.</div></div>
+ <div class="card"><div class="status-head"><b class="section-title" style="margin:0">TODAY'S ATTENDANCE</b><span class="shift-pill" id="shiftName">SHIFT</span></div><div class="punch-grid"><div class="punch-cell"><small>FIRST IN</small><b id="vIn">—</b></div><div class="punch-cell"><small>LUNCH OUT</small><b id="vLunchOut" style="color:#d98000">—</b></div><div class="punch-cell"><small>LUNCH IN</small><b id="vLunchIn" style="color:#7435d0">—</b></div><div class="punch-cell"><small>LAST OUT</small><b id="vOut" style="color:#d83242">—</b></div></div><div class="summary"><div><small>WORKING HOURS</small><b id="workHours">—</b></div><div><small>OVERTIME</small><b id="otHours">—</b></div></div><div class="hint">Working hours and OT refresh after the attendance summary is recalculated.</div></div>
+ <div class="foot">Blue Packaging • Secure Attendance</div>
+</section>
+</main>
 <script>
-
-
-// ==========================================
-// APPS SCRIPT URL
-// ==========================================
-
-const APPS_SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbxtHQ_UArWbCpLO_N6GC9dTC794aCFseC1-9e7Yqvhhr1zUkJ2Sd7jW56r8gzh5t99o/exec";
-
-
-// ==========================================
-// SCANNER
-// ==========================================
-
-let scanning = true;
-
-const html5QrCode = new Html5Qrcode("reader");
-
-
-// ==========================================
-// MESSAGE
-// ==========================================
-
-function showMessage(text) {
-
-  document.getElementById("message").innerHTML = text;
-
-}
-
-
-// ==========================================
-// START CAMERA
-// ==========================================
-
-function startCamera() {
-
-  Html5Qrcode.getCameras()
-
-    .then(function(devices) {
-
-      if (!devices || devices.length === 0) {
-
-        showMessage("❌ Camera nahi mila.");
-
-        return;
-      }
-
-
-      // First camera
-      let cameraId = devices[0].id;
-
-
-      // Rear / Back camera prefer
-      for (let i = 0; i < devices.length; i++) {
-
-        const label =
-          (devices[i].label || "").toLowerCase();
-
-        if (
-          label.includes("back") ||
-          label.includes("rear") ||
-          label.includes("environment")
-        ) {
-
-          cameraId = devices[i].id;
-
-          break;
-        }
-      }
-
-
-      // Start scanner
-      html5QrCode.start(
-
-        cameraId,
-
-        {
-          fps: 10,
-
-          qrbox: {
-            width: 250,
-            height: 250
-          }
-        },
-
-        onScanSuccess,
-
-        onScanFailure
-
-      );
-
-    })
-
-    .catch(function(error) {
-
-      showMessage(
-        "❌ Camera permission/problem: " + error
-      );
-
-    });
-
-}
-
-
-// ==========================================
-// NORMAL SCAN ERRORS
-// ==========================================
-
-function onScanFailure(error) {
-
-  // Normal scanning errors ignore
-
-}
-
-
-// ==========================================
-// QR SUCCESS
-// ==========================================
-
-function onScanSuccess(decodedText) {
-
-
-  // Already processing?
-  if (!scanning) {
-
-    return;
-  }
-
-
-  scanning = false;
-
-
-  const employeeId = decodedText.trim();
-// ==============================
-// MASTER QR - DEVICE REGISTRATION
-// ==============================
-
-// ==============================
-// MASTER QR - REGISTER / PUNCH
-// ==============================
-
-if (employeeId === "MASTER_REGISTER") {
-
-  html5QrCode.stop().catch(function() {});
-
-  // Mobile ka saved Device ID
-  let deviceId = localStorage.getItem("QR_DEVICE_ID");
-
-  // ==========================================
-  // FIRST TIME MOBILE → REGISTRATION
-  // ==========================================
-
-  if (!deviceId) {
-
-    const registeredEmployeeId =
-      prompt("Employee ID enter karein (example: EMP001):");
-
-    if (!registeredEmployeeId) {
-
-      showMessage("❌ Registration cancel ho gaya.");
-
-      setTimeout(function() {
-        scanning = true;
-        showMessage("📷 QR Code scan karein");
-        startCamera();
-      }, 2000);
-
-      return;
-    }
-
-    deviceId = crypto.randomUUID();
-
-    localStorage.setItem(
-      "QR_DEVICE_ID",
-      deviceId
-    );
-
-    showMessage(
-      "📱 Mobile register ho raha hai..." +
-      "<br><br>👤 Employee: " +
-      registeredEmployeeId
-    );
-
-    const registerUrl =
-      APPS_SCRIPT_URL +
-      "?action=register" +
-      "&employeeId=" +
-      encodeURIComponent(registeredEmployeeId) +
-      "&deviceId=" +
-      encodeURIComponent(deviceId);
-
-    fetch(registerUrl, {
-      method: "GET",
-      mode: "no-cors"
-    })
-    .then(function() {
-
-      showMessage(
-        "✅ Mobile registration request send ho gayi!" +
-        "<br><br>👤 Employee: " +
-        registeredEmployeeId +
-        "<br><br>📱 Devices sheet check karein."
-      );
-
-      setTimeout(function() {
-
-        scanning = true;
-
-        showMessage(
-          "📷 QR Code scan karein"
-        );
-
-        startCamera();
-
-      }, 3000);
-
-    })
-    .catch(function(error) {
-
-      scanning = true;
-
-      showMessage(
-        "❌ Registration request nahi bheji gayi." +
-        "<br><br>" +
-        error
-      );
-
-    });
-
-    return;
-  }
-
-
-  // ==========================================
-  // REGISTERED MOBILE → AUTOMATIC ATTENDANCE
-  // ==========================================
-
-  showMessage(
-    "📱 Registered mobile detected." +
-    "<br><br>📍 Location check ho rahi hai..."
-  );
-
-
-  navigator.geolocation.getCurrentPosition(
-
-    function(position) {
-
-      const latitude =
-        position.coords.latitude;
-
-      const longitude =
-        position.coords.longitude;
-
-
-      showMessage(
-        "📍 Location mil gayi." +
-        "<br><br>⏳ Attendance save ho rahi hai..."
-      );
-
-
-      const punchUrl =
-        APPS_SCRIPT_URL +
-        "?action=devicePunch" +
-        "&deviceId=" +
-        encodeURIComponent(deviceId) +
-        "&latitude=" +
-        encodeURIComponent(latitude) +
-        "&longitude=" +
-        encodeURIComponent(longitude);
-
-
-      fetch(punchUrl, {
-        method: "GET",
-        mode: "no-cors"
-      })
-
-      .then(function() {
-
-        showMessage(
-          "✅ Attendance request send ho gayi!" +
-          "<br><br>📱 Registered mobile se punch complete." +
-          "<br><br>📷 Scanner dobara start ho raha hai..."
-        );
-
-
-        setTimeout(function() {
-
-          scanning = true;
-
-          showMessage(
-            "📷 QR Code scan karein"
-          );
-
-          startCamera();
-
-        }, 2500);
-
-      })
-
-      .catch(function(error) {
-
-        scanning = true;
-
-        showMessage(
-          "❌ Attendance request nahi bheji gayi." +
-          "<br><br>" +
-          error
-        );
-
-      });
-
-    },
-
-
-    function(error) {
-
-      scanning = true;
-
-      let msg =
-        "❌ GPS location nahi mil rahi.";
-
-      if (error.code === 1) {
-        msg =
-          "❌ Location permission allow karein.";
-      }
-
-      if (error.code === 2) {
-        msg =
-          "❌ Location available nahi hai.";
-      }
-
-      if (error.code === 3) {
-        msg =
-          "❌ Location timeout.";
-      }
-
-      showMessage(msg);
-
-    },
-
-
-    {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0
-    }
-
-  );
-
-  return;
-}
-
- 
-  showMessage(
-
-    "👤 Employee ID: " +
-    employeeId +
-
-    "<br><br>📍 Location check ho rahi hai..."
-
-  );
-
-
-  // Stop camera
-  html5QrCode.stop().catch(function() {});
-
-
-  // ========================================
-  // GET GPS LOCATION
-  // ========================================
-
-  navigator.geolocation.getCurrentPosition(
-
-    function(position) {
-
-
-      const latitude =
-        position.coords.latitude;
-
-      const longitude =
-        position.coords.longitude;
-
-
-      showMessage(
-
-        "👤 Employee: " +
-        employeeId +
-
-        "<br><br>📍 Location mil gayi" +
-
-        "<br><br>⏳ Attendance save ho rahi hai..."
-
-      );
-
-
-      // ====================================
-      // APPS SCRIPT REQUEST URL
-      // ====================================
-
-      const url =
-
-        APPS_SCRIPT_URL +
-
-        "?action=punch" +
-
-        "&employeeId=" +
-        encodeURIComponent(employeeId) +
-
-        "&latitude=" +
-        encodeURIComponent(latitude) +
-
-        "&longitude=" +
-        encodeURIComponent(longitude);
-
-
-      // ====================================
-      // SEND REQUEST
-      // ====================================
-
-      fetch(url, {
-
-        method: "GET",
-
-        mode: "no-cors"
-
-      })
-
-      .then(function() {
-
-
-        showMessage(
-
-          "✅ Attendance save ho gayi!" +
-
-          "<br><br>👤 Employee: " +
-          employeeId +
-
-          "<br><br>📷 Scanner dobara start ho raha hai..."
-
-        );
-
-
-        // ==================================
-        // RESTART CAMERA
-        // ==================================
-
-        setTimeout(function() {
-
-
-          scanning = true;
-
-
-          document.getElementById("message").innerHTML =
-            "📷 QR Code scan karein";
-
-
-          startCamera();
-
-
-        }, 2500);
-
-
-      })
-
-      .catch(function(error) {
-
-
-        scanning = true;
-
-
-        showMessage(
-
-          "❌ Request send nahi hui." +
-
-          "<br><br>" +
-
-          error
-
-        );
-
-
-      });
-
-
-    },
-
-
-    // ======================================
-    // GPS ERROR
-    // ======================================
-
-    function(error) {
-
-
-      scanning = true;
-
-
-      let msg =
-        "❌ GPS location nahi mil rahi.";
-
-
-      if (error.code === 1) {
-
-        msg =
-          "❌ Location permission allow karein.";
-
-      }
-
-
-      if (error.code === 2) {
-
-        msg =
-          "❌ Location available nahi hai.";
-
-      }
-
-
-      if (error.code === 3) {
-
-        msg =
-          "❌ Location timeout.";
-
-      }
-
-
-      showMessage(msg);
-
-    },
-
-
-    // ======================================
-    // GPS OPTIONS
-    // ======================================
-
-    {
-
-      enableHighAccuracy: true,
-
-      timeout: 15000,
-
-      maximumAge: 0
-
-    }
-
-  );
-
-}
-
-
-// ==========================================
-// START CAMERA WHEN PAGE OPENS
-// ==========================================
-
-startCamera();
-
-
-</script>
-
-</body>
-</html>
+'use strict';
+const API_URL='https://script.google.com/macros/s/AKfycbwTMUEWcl-FfKVdPVD0ecejz5NaCXXWOqDBYfTg2e92may5OZmelrFXemUwSt7cFBGH/exec';
+const MASTER_CODES=['MASTER_QR','MASTER_REGISTER'];
+const DEVICE_KEY='BP_DEVICE_ID_V2',QUEUE_KEY='BP_OFFLINE_PUNCHES_V2';
+let employees=[],selectedId='',selectedName='',scanner=null,busy=false,lastScanText='',lastScanAt=0,manualMode=false,scannerStarting=false;
+const $=id=>document.getElementById(id);
+function setHome(s){$('homeStatus').textContent=s} function setAtt(s){$('attStatus').textContent=s}
+function randomId(){try{return [...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)}}
+function newId(){return 'P-'+Date.now().toString(36)+'-'+randomId()}
+function getDeviceId(){let id=localStorage.getItem(DEVICE_KEY)||localStorage.getItem('BP_DEVICE_ID');if(!id)id='BP-'+randomId();localStorage.setItem(DEVICE_KEY,id);localStorage.setItem('BP_DEVICE_ID',id);return id}
+function getQueue(){try{return JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]')}catch(e){return []}}
+function updateCounts(){$('pending').textContent='Pending: '+getQueue().length;$('net').textContent=navigator.onLine?'ONLINE':'OFFLINE'}
+function updateClock(){const d=new Date();$('todayDate').textContent=d.toLocaleDateString(undefined,{weekday:'short',day:'2-digit',month:'short',year:'numeric'});$('todayTime').textContent=d.toLocaleTimeString();$('attDate').textContent=$('todayDate').textContent;$('attTime').textContent=$('todayTime').textContent}
+function api(op,params={}){return new Promise((resolve,reject)=>{const cb='bpCb_'+Date.now()+'_'+Math.floor(Math.random()*1e6),tag=document.createElement('script');let done=false,timer;const clean=()=>{if(done)return;done=true;clearTimeout(timer);try{delete window[cb]}catch(e){window[cb]=undefined}tag.remove()};window[cb]=d=>{clean();if(d&&d.success===false)reject(Error(d.message||'Server rejected request'));else resolve(d||{})};tag.onerror=()=>{clean();reject(Error('TEST server response nahi mila. Deployment URL/access check karein.'))};const q=new URLSearchParams({action:'api',op,callback:cb,...Object.fromEntries(Object.entries(params).map(([k,v])=>[k,String(v)]))});tag.src=API_URL+'?'+q.toString();timer=setTimeout(()=>{if(!done){clean();reject(Error('Server timeout. Internet/deployment check karein.'))}},20000);document.body.appendChild(tag)})}
+async function loadEmployees(){if(!navigator.onLine){setHome('Employee list ke liye internet chahiye.');return}try{const r=await api('employees');employees=(r.employees||[]).filter(e=>e&&e.id&&e.name);const s=$('employee');s.innerHTML='<option value="">-- Choose employee --</option>';employees.forEach(e=>{const o=document.createElement('option');o.value=e.id;o.textContent=e.id+' — '+e.name;s.appendChild(o)});$('empCount').textContent='Employees: '+employees.length;setHome('TEST server connected. Employees loaded.')}catch(e){setHome('Employee/API error: '+e.message)}}
+function toggleManualMode(){manualMode=!manualMode;$('manualToggle').classList.toggle('active',manualMode);$('manualToggle').innerHTML='✦ &nbsp; MANUAL MODE <span style="float:right">'+(manualMode?'ON':'OFF')+'</span>';$('modeHint').textContent=manualMode?'Manual Mode ON. Employee select karke OPEN dabayein. QR scanner pause rahega.':'Manual Mode OFF. QR scan ke liye Restart Camera dabayein.';if(manualMode){stopScanner();setHome('Manual Mode ON. Employee choose karein.')}else setHome('QR mode selected. Restart Camera dabayein.')}
+function openSelectedEmployee(){const id=$('employee').value;if(!id){setHome('Pehle employee select karein.');return}const e=employees.find(x=>x.id===id);if(!e){setHome('Employee list mein nahi mila.');return}selectedId=e.id;selectedName=e.name;$('attEmpId').textContent=selectedId;$('attEmpName').textContent=selectedName;showScreen('attendanceScreen');loadAttendanceData()}
+function showScreen(id){$('homeScreen').classList.remove('active');$('attendanceScreen').classList.remove('active');$(id).classList.add('active');window.scrollTo(0,0)}
+function goHome(){showScreen('homeScreen')}
+function toggleSettings(){const d=$('settingsPanel');d.open=!d.open}
+async function requestRegistration(){if(!selectedId){const id=$('employee').value;if(id){const e=employees.find(x=>x.id===id);selectedId=id;selectedName=e?e.name:''}}if(!selectedId){setHome('Registration se pehle employee select karein.');return}const dev=getDeviceId();setHome('Registration request bhej rahe hain…');try{const r=await api('register',{employeeId:selectedId,deviceId:dev});setHome((r.message||'Request submitted')+'
+Device ID: '+dev)}catch(e){setHome('Registration error: '+e.message)}}
+function showCameraMessage(m){$('reader').innerHTML='<div style="color:#d9e8fb;text-align:center;padding:20px;font-size:13px;line-height:1.6">'+String(m).replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'}
+async function startScanner(){if(manualMode||scannerStarting)return;scannerStarting=true;showCameraMessage('Camera start ho raha hai…');try{if(!window.Html5Qrcode)throw Error('QR scanner library load nahi hui. Internet check karein.');if(scanner&&scanner.isScanning)await scanner.stop();if(scanner){try{await scanner.clear()}catch(e){}}scanner=new Html5Qrcode('reader');await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:230,height:230},aspectRatio:1.0},onScanSuccess,()=>{});setHome('Camera active. Admin MASTER QR scan karein.')}catch(e){showCameraMessage('Camera start nahi hua.
+Error: '+((e&&e.message)||e));setHome('Camera error: '+((e&&e.message)||e))}finally{scannerStarting=false}}
+async function stopScanner(){try{if(scanner&&scanner.isScanning){await scanner.stop();showCameraMessage('Camera paused. Restart Camera dabayein.')}}catch(e){showCameraMessage('Camera pause error: '+((e&&e.message)||e))}}
+function onScanSuccess(t){const v=String(t||'').trim(),n=Date.now();if(!v||(v===lastScanText&&n-lastScanAt<2500))return;lastScanText=v;lastScanAt=n;handleScan(v)}
+async function handleScan(v){if(busy||manualMode)return;if(MASTER_CODES.some(x=>x.toUpperCase()===v.toUpperCase())||/msangvikar7-crypto\\.github\\.io\\/QR-Attendance/i.test(v)||/yourinfopagehere/i.test(v)){await punchMaster();return}const e=employees.find(x=>String(x.id).toUpperCase()===v.toUpperCase());if(e){selectedId=e.id;selectedName=e.name;$('employee').value=e.id;setHome('Employee QR recognized: '+e.name+'. Punch ke liye Admin MASTER QR scan karein.')}else setHome('Unknown QR: '+v)}
+function gps(){return new Promise((resolve,reject)=>{if(!navigator.geolocation)return reject(Error('GPS unavailable'));navigator.geolocation.getCurrentPosition(p=>resolve({lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy}),e=>reject(Error(e.code===1?'Location permission allow karein.':e.code===2?'Location unavailable.':e.code===3?'GPS timeout.':e.message||'GPS error')),{enableHighAccuracy:true,timeout:20000,maximumAge:0})})}
+async function punchMaster(){if(busy)return;busy=true;try{setHome('MASTER QR mila. GPS verify ho raha hai…');const p=await gps();$('gpsState').textContent='● GPS captured';$('gpsDetail').textContent='Accuracy '+Math.round(p.accuracy)+' m';const r=await api('master',{deviceId:getDeviceId(),latitude:p.lat,longitude:p.lon,timestamp:new Date().toISOString(),punchId:newId()});setHome('✓ SERVER CONFIRMED
+'+(r.message||'Punch saved')+'
+Employee: '+(r.employeeId||'registered mobile')+'
+Action: '+(r.action||'AUTO')+(r.distance!==undefined?'
+Distance: '+r.distance+' m':''))}catch(e){setHome('Punch save nahi hua: '+e.message)}finally{busy=false}}
+async function loadAttendanceData(){if(!selectedId)return;try{const r=await api('status',{employeeId:selectedId}),p=r.punches||{};$('vIn').textContent=p.IN||'—';$('vLunchOut').textContent=p.LUNCH_OUT||'—';$('vLunchIn').textContent=p.LUNCH_IN||'—';$('vOut').textContent=p.FINAL_OUT||p.MARK_OUT||'—';$('shiftName').textContent='TODAY';$('workHours').textContent=r.workingHours||'—';$('otHours').textContent=r.overtime||'—';updateActionButtons(r.lastAction||'')}catch(e){setAtt('Attendance status unavailable: '+e.message)}}
+function updateActionButtons(last){$('btnIn').disabled=!['','MARK OUT','OUT 2'].includes(last);$('btnOut').disabled=!['IN','LUNCH IN','IN 2','IN 3'].includes(last);$('btnLunchOut').disabled=last!=='IN';$('btnLunchIn').disabled=last!=='LUNCH OUT'}
+async function manualPunch(button){if(busy||!selectedId)return;busy=true;try{setAtt('GPS verify ho raha hai…');const p=await gps();const r=await api('manual',{employeeId:selectedId,buttonAction:button,latitude:p.lat,longitude:p.lon,deviceId:getDeviceId(),timestamp:new Date().toISOString(),punchId:newId()});setAtt('✓ SERVER CONFIRMED: '+(r.message||'Punch saved')+'
+Action: '+(r.action||button)+(r.distance!==undefined?'
+Distance: '+r.distance+' m':''));await loadAttendanceData()}catch(e){setAtt('Punch save nahi hua: '+e.message)}finally{busy=false}}
+function syncQueue(){updateCounts();setHome('GitHub TEST build mein offline punch sync abhi enable nahi hai. Punch ke liye internet required hai.')}
+window.addEventListener('online',()=>{updateCounts();loadEmployees()});window.addEventListener('offline',()=>{updateCounts();setHome('Internet offline. Punch ke liye connection chahiye.')});
+window.addEventListener('load',()=>{updateCounts();updateClock();setInterval(updateClock,15000);$('device').textContent='Device ID: '+getDeviceId();loadEmployees();showCameraMessage('Camera start karne ke liye Restart Camera dabayein.')});
+</script></body></html>
