@@ -8,11 +8,12 @@
 h2{margin:10px 0 16px}#reader{width:100%;max-width:500px;margin:auto;background:#fff;border-radius:12px;padding:8px;min-height:80px;overflow:hidden}
 #message{margin:18px auto;max-width:500px;padding:16px;border-radius:10px;background:#fff;font-size:17px;font-weight:600;line-height:1.45;overflow-wrap:anywhere}
 .small{font-size:13px;color:#5d6b78;font-weight:normal}button{border:0;border-radius:8px;padding:12px 16px;background:#123b63;color:#fff;font-size:15px;margin:6px}
-.secondary{background:#536779}button:disabled{opacity:.5}#registerPanel{display:none;max-width:500px;margin:12px auto;background:#fff;padding:16px;border-radius:10px;text-align:left}
+.secondary{background:#536779}button:disabled{opacity:.5}#adminPanel{display:none;max-width:500px;margin:12px auto;background:#fff;padding:16px;border-radius:10px;text-align:left}#adminPin{width:100%;padding:12px;border:1px solid #aab7c4;border-radius:7px;font-size:22px;letter-spacing:8px;text-align:center}#adminPanel label{display:block;font-weight:bold;margin-bottom:8px}#adminActions{text-align:right;margin-top:10px}#registerPanel{display:none;max-width:500px;margin:12px auto;background:#fff;padding:16px;border-radius:10px;text-align:left}
 #registerPanel label{display:block;font-weight:bold;margin-bottom:8px}#employeeId{width:100%;padding:12px;border:1px solid #aab7c4;border-radius:7px;font-size:17px;text-transform:uppercase}#registerActions{text-align:right;margin-top:10px}
 </style></head><body>
 <h2>Blue Packaging – QR Attendance</h2><div id="reader"></div>
 <div id="message">Camera start ho raha hai...<div class="small">Camera aur Location permission Allow karein.</div></div>
+<div id="adminPanel"><label for="adminPin">Admin PIN (4 digits)</label><input id="adminPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"><div class="small">Sirf authorized Admin ka PIN. PIN screen par hidden rahega.</div><div id="adminActions"><button class="secondary" type="button" onclick="cancelAdminAuth()">Cancel</button><button type="button" onclick="submitAdminPin()">Verify Admin</button></div></div>
 <div id="registerPanel"><label for="employeeId">Admin: Employee ID / Employee Number</label>
 <input id="employeeId" type="text" autocomplete="off" placeholder="Example: EMP001">
 <div class="small">OK karne par is mobile ki Device ID is Employee ke saath register / reassign hogi.</div>
@@ -24,7 +25,7 @@ h2{margin:10px 0 16px}#reader{width:100%;max-width:500px;margin:auto;background:
 "use strict";
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyELaImMD8SFldqOivMAWlGNAxczMp2EFq-e5MTSmpQNC_1LAj6LWnx_Yd7W95XrJeD/exec";
 const MASTER_QR_TEXT="MASTER_REGISTER", DEVICE_STORAGE_KEY="QR_DEVICE_ID";
-let scanner=null,scannerRunning=false,busy=false,callbackCounter=0,forceRegistration=false,pendingDeviceId="";
+let scanner=null,scannerRunning=false,busy=false,callbackCounter=0,forceRegistration=false,pendingDeviceId="",adminToken="";
 function msg(x){document.getElementById("message").innerHTML=x;}
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function deviceId(){let id=localStorage.getItem(DEVICE_STORAGE_KEY);if(!id){id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():"QR-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2);localStorage.setItem(DEVICE_STORAGE_KEY,id);}return id;}
@@ -43,12 +44,12 @@ async function stopCamera(){if(scanner&&scannerRunning){try{await scanner.stop()
 async function onScan(text){if(!scannerRunning||busy)return;if(String(text||"").trim()!==MASTER_QR_TEXT){msg("⚠️ Yeh Admin Master QR nahi hai. Wahi Master QR scan karein.");return;}
 busy=true;await stopCamera();pendingDeviceId=deviceId();if(forceRegistration){forceRegistration=false;showRegistration();return;}
 msg("🔐 Mobile registration check ho rahi hai...");try{const r=await api({action:"deviceStatus",deviceId:pendingDeviceId});
-if(r?.success&&r.registered){punchWithGPS();}else if(r?.success&&!r.registered){showRegistration();}else{busy=false;msg("❌ Device check nahi hua: "+esc(r?.message||"Server error"));restartLater();}
+if(r?.success&&r.registered){punchWithGPS();}else if(r?.success&&!r.registered){openAdminAuth(true);}else{busy=false;msg("❌ Device check nahi hua: "+esc(r?.message||"Server error"));restartLater();}
 }catch(e){busy=false;msg("❌ Server connection error<br>"+esc(e.message||e));restartLater();}}
-function showRegistration(){document.getElementById("registerPanel").style.display="block";document.getElementById("employeeId").value="";msg("📋 Master QR scan ho gaya.<br>Admin Employee ID / Number enter karke OK karein.");document.getElementById("employeeId").focus();}
+function showRegistration(){document.getElementById("adminPanel").style.display="none";document.getElementById("registerPanel").style.display="block";document.getElementById("employeeId").value="";msg("📋 Master QR scan ho gaya.<br>Admin Employee ID / Number enter karke OK karein.");document.getElementById("employeeId").focus();}
 function cancelRegistration(){document.getElementById("registerPanel").style.display="none";pendingDeviceId="";busy=false;msg("Registration cancel hua. Dobara Master QR scan karein.");restartLater();}
 async function submitRegistration(){const emp=document.getElementById("employeeId").value.trim().toUpperCase();if(!emp){msg("❌ Employee ID enter karein.");return;}const buttons=document.querySelectorAll("#registerActions button");buttons.forEach(b=>b.disabled=true);msg("⏳ "+esc(emp)+" ka mobile register ho raha hai...");
-try{const r=await api({action:"register",employeeId:emp,deviceId:pendingDeviceId||deviceId()});if(r?.success){document.getElementById("registerPanel").style.display="none";msg("✅ "+esc(r.message||"Mobile registered.")+"<br><br>Ab isi mobile se Master QR scan karke daily attendance hogi.");pendingDeviceId="";busy=false;restartLater();}else{msg("❌ "+esc(r?.message||"Registration failed."));}}
+try{const r=await api({action:"register",employeeId:emp,deviceId:pendingDeviceId||deviceId(),adminToken:adminToken});if(r?.success){document.getElementById("registerPanel").style.display="none";msg("✅ "+esc(r.message||"Mobile registered.")+"<br><br>Ab isi mobile se Master QR scan karke daily attendance hogi.");pendingDeviceId="";adminToken="";busy=false;restartLater();}else{msg("❌ "+esc(r?.message||"Registration failed."));}}
 catch(e){msg("❌ Registration connection error<br>"+esc(e.message||e));}finally{buttons.forEach(b=>b.disabled=false);}}
 function punchWithGPS(){if(!navigator.geolocation){busy=false;msg("❌ Mobile location service available nahi hai.");restartLater();return;}msg("📍 GPS location mil rahi hai...");
 navigator.geolocation.getCurrentPosition(async p=>{try{const r=await api({action:"devicePunch",deviceId:pendingDeviceId||deviceId(),latitude:p.coords.latitude,longitude:p.coords.longitude});
@@ -56,7 +57,10 @@ if(r?.success)msg("✅ "+esc(r.message||"Attendance marked.")+(r.distance!==unde
 catch(e){msg("❌ Attendance connection error<br>"+esc(e.message||e));}finally{pendingDeviceId="";busy=false;restartLater();}},
 e=>{let m="❌ Mobile location nahi mil rahi.";if(e.code===1)m="❌ Location permission DENIED. Browser settings mein Allow karein.";if(e.code===2)m="❌ GPS/Location ON karein.";if(e.code===3)m="❌ Location timeout. Dobara try karein.";msg(m);pendingDeviceId="";busy=false;restartLater();},
 {enableHighAccuracy:true,timeout:20000,maximumAge:0});}
-function armChangeRegistration(){forceRegistration=true;msg("🔁 Change Registration Mode ON.<br>Ab Master QR scan karein. Admin naye Employee ID se mobile register / reassign kar sakta hai.");}
+function openAdminAuth(afterScan){pendingDeviceId=pendingDeviceId||deviceId();forceRegistration=!!afterScan;document.getElementById("adminPanel").style.display="block";document.getElementById("registerPanel").style.display="none";document.getElementById("adminPin").value="";msg("🔐 Registration ke liye Admin PIN verify karein.");document.getElementById("adminPin").focus();}
+function cancelAdminAuth(){document.getElementById("adminPanel").style.display="none";forceRegistration=false;pendingDeviceId="";busy=false;msg("Admin verification cancel hua.");restartLater();}
+async function submitAdminPin(){const pin=document.getElementById("adminPin").value.trim();if(!/^\d{4}$/.test(pin)){msg("❌ 4 digit PIN enter karein.");return;}const btns=document.querySelectorAll("#adminActions button");btns.forEach(b=>b.disabled=true);try{const ch=await api({action:"adminChallenge",deviceId:pendingDeviceId||deviceId()});if(!ch?.success)throw Error(ch?.message||"Challenge failed");const raw=pin+"|"+ch.nonce+"|"+(pendingDeviceId||deviceId());const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(raw));const proof=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("");const r=await api({action:"adminAuthorize",deviceId:pendingDeviceId||deviceId(),proof:proof});if(!r?.success)throw Error(r?.message||"Admin verification failed");adminToken=r.adminToken;document.getElementById("adminPanel").style.display="none";document.getElementById("adminPin").value="";if(forceRegistration){msg("✅ Admin verified. Ab Master QR scan karein.");startCamera();}else{showRegistration();}}catch(e){msg("❌ "+esc(e.message||e));}finally{btns.forEach(b=>b.disabled=false);}}
+async function armChangeRegistration(){forceRegistration=true;await stopCamera();openAdminAuth(true);msg("🔐 Admin PIN verify karein. Uske baad Master QR scan karein.");}
 function restartLater(){setTimeout(()=>{if(!busy&&document.getElementById("registerPanel").style.display!=="block")startCamera();},3500);}
 window.addEventListener("load",startCamera);
 </script></body></html>
