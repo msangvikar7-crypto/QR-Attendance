@@ -1,626 +1,287 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="blue_packaging_app_icon.png">
-<link rel="apple-touch-icon" href="blue_packaging_app_icon.png">
-<link rel="manifest" href="manifest.json">
-  <title>QR Attendance</title>
-
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
+  <meta name="theme-color" content="#123b63">
+  <title>Blue Packaging QR Attendance</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
-
+    * { box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      background: #f4f4f4;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
+      background: #f3f6fa;
+      color: #172b40;
     }
-
-    .box {
-      background: white;
-      max-width: 450px;
-      margin: auto;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    }
-
-    h2 {
-      margin-top: 5px;
-    }
-
+    h2 { margin: 10px 0 16px; }
     #reader {
       width: 100%;
-      margin-top: 20px;
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 8px;
+      min-height: 80px;
+      overflow: hidden;
     }
-
     #message {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
+      margin: 18px auto;
+      max-width: 500px;
+      padding: 16px;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
     }
-
+    .small { font-size: 13px; color: #5d6b78; font-weight: normal; }
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 18px;
+      background: #123b63;
+      color: #fff;
+      font-size: 16px;
+      margin: 6px;
+    }
+    button:disabled { opacity: .5; }
   </style>
-
 </head>
-
 <body>
-
-  <div class="box">
-
-    <h2>📱 QR Attendance</h2>
-
-    <div id="reader"></div>
-
-    <div id="message">
-      📷 QR Code scan karein
-    </div>
-
+  <h2>Blue Packaging – QR Attendance</h2>
+  <div id="reader"></div>
+  <div id="message">
+    Camera start ho raha hai...
+    <div class="small">Camera aur Location permission Allow karein.</div>
   </div>
-
+  <button id="restartButton" type="button" onclick="startCamera()">Restart Camera</button>
 
 <script>
+"use strict";
 
+// IMPORTANT: Paste the deployed Apps Script Web App URL ending in /exec here.
+// Do NOT use the Apps Script editor URL ending in /edit.
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyELaImMD8SFldqOivMAWlGNAxczMp2EFq-e5MTSmpQNC_1LAj6LWnx_Yd7W95XrJeD/exec";
 
-// ==========================================
-// APPS SCRIPT URL
-// ==========================================
+let scanner = null;
+let scannerRunning = false;
+let requestInProgress = false;
+let callbackCounter = 0;
 
-const APPS_SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbxtHQ_UArWbCpLO_N6GC9dTC794aCFseC1-9e7Yqvhhr1zUkJ2Sd7jW56r8gzh5t99o/exec";
-
-
-// ==========================================
-// SCANNER
-// ==========================================
-
-let scanning = true;
-
-const html5QrCode = new Html5Qrcode("reader");
-
-
-// ==========================================
-// MESSAGE
-// ==========================================
-
-function showMessage(text) {
-
-  document.getElementById("message").innerHTML = text;
-
+function showMessage(message) {
+  document.getElementById("message").innerHTML = message;
 }
 
-
-// ==========================================
-// START CAMERA
-// ==========================================
-
-function startCamera() {
-
-  Html5Qrcode.getCameras()
-
-    .then(function(devices) {
-
-      if (!devices || devices.length === 0) {
-
-        showMessage("❌ Camera nahi mila.");
-
-        return;
-      }
-
-
-      // First camera
-      let cameraId = devices[0].id;
-
-
-      // Rear / Back camera prefer
-      for (let i = 0; i < devices.length; i++) {
-
-        const label =
-          (devices[i].label || "").toLowerCase();
-
-        if (
-          label.includes("back") ||
-          label.includes("rear") ||
-          label.includes("environment")
-        ) {
-
-          cameraId = devices[i].id;
-
-          break;
-        }
-      }
-
-
-      // Start scanner
-      html5QrCode.start(
-
-        cameraId,
-
-        {
-          fps: 10,
-
-          qrbox: {
-            width: 250,
-            height: 250
-          }
-        },
-
-        onScanSuccess,
-
-        onScanFailure
-
-      );
-
-    })
-
-    .catch(function(error) {
-
-      showMessage(
-        "❌ Camera permission/problem: " + error
-      );
-
-    });
-
-}
-
-
-// ==========================================
-// NORMAL SCAN ERRORS
-// ==========================================
-
-function onScanFailure(error) {
-
-  // Normal scanning errors ignore
-
-}
-
-
-// ==========================================
-// QR SUCCESS
-// ==========================================
-
-function onScanSuccess(decodedText) {
-
-
-  // Already processing?
-  if (!scanning) {
-
-    return;
+function getApiUrl() {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("/exec") === -1 ||
+      APPS_SCRIPT_URL.indexOf("PASTE_DEPLOYED") !== -1) {
+    throw new Error("Apps Script Web App ka deployed URL (ending /exec) Index.html mein set nahi hai.");
   }
+  return APPS_SCRIPT_URL;
+}
 
-
-  scanning = false;
-
-
-  const employeeId = decodedText.trim();
-// ==============================
-// MASTER QR - DEVICE REGISTRATION
-// ==============================
-
-// ==============================
-// MASTER QR - REGISTER / PUNCH
-// ==============================
-
-if (employeeId === "MASTER_REGISTER") {
-
-  html5QrCode.stop().catch(function() {});
-
-  // Mobile ka saved Device ID
-  let deviceId = localStorage.getItem("QR_DEVICE_ID");
-
-  // ==========================================
-  // FIRST TIME MOBILE → REGISTRATION
-  // ==========================================
-
-  if (!deviceId) {
-
-    const registeredEmployeeId =
-      prompt("Employee ID enter karein (example: EMP001):");
-
-    if (!registeredEmployeeId) {
-
-      showMessage("❌ Registration cancel ho gaya.");
-
-      setTimeout(function() {
-        scanning = true;
-        showMessage("📷 QR Code scan karein");
-        startCamera();
-      }, 2000);
-
+function callAppsScript(params) {
+  return new Promise(function(resolve, reject) {
+    let url;
+    try {
+      url = getApiUrl();
+    } catch (err) {
+      reject(err);
       return;
     }
 
-    deviceId = crypto.randomUUID();
+    const callbackName = "attendanceJsonpCallback" + (++callbackCounter);
+    const script = document.createElement("script");
+    let finished = false;
 
-    localStorage.setItem(
-      "QR_DEVICE_ID",
-      deviceId
-    );
+    const cleanup = function() {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      script.remove();
+      try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+    };
 
-    showMessage(
-      "📱 Mobile register ho raha hai..." +
-      "<br><br>👤 Employee: " +
-      registeredEmployeeId
-    );
+    const timer = setTimeout(function() {
+      cleanup();
+      reject(new Error("Apps Script se response nahi mila. Web App URL, deployment aur internet check karein."));
+    }, 25000);
 
-    const registerUrl =
-      APPS_SCRIPT_URL +
-      "?action=register" +
-      "&employeeId=" +
-      encodeURIComponent(registeredEmployeeId) +
-      "&deviceId=" +
-      encodeURIComponent(deviceId);
+    window[callbackName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
 
-    fetch(registerUrl, {
-      method: "GET",
-      mode: "no-cors"
-    })
-    .then(function() {
+    const query = new URLSearchParams(params);
+    query.set("callback", callbackName);
+    query.set("_", String(Date.now()));
+    script.onerror = function() {
+      cleanup();
+      reject(new Error("Apps Script request load nahi hui. Deployment URL ya access permission check karein."));
+    };
+    script.src = url + (url.indexOf("?") >= 0 ? "&" : "?") + query.toString();
+    document.head.appendChild(script);
+  });
+}
 
-      showMessage(
-        "✅ Mobile registration request send ho gayi!" +
-        "<br><br>👤 Employee: " +
-        registeredEmployeeId +
-        "<br><br>📱 Devices sheet check karein."
-      );
+async function startCamera() {
+  if (scannerRunning) return;
 
-      setTimeout(function() {
+  const restartButton = document.getElementById("restartButton");
+  restartButton.disabled = true;
 
-        scanning = true;
+  try {
+    showMessage("📷 Camera permission check ho rahi hai...");
 
-        showMessage(
-          "📷 QR Code scan karein"
-        );
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error("Camera ke liye HTTPS aur supported browser zaroori hai.");
+    }
+    if (typeof Html5Qrcode === "undefined") {
+      throw new Error("QR Scanner library load nahi hui. Internet connection check karein.");
+    }
 
-        startCamera();
-
-      }, 3000);
-
-    })
-    .catch(function(error) {
-
-      scanning = true;
-
-      showMessage(
-        "❌ Registration request nahi bheji gayi." +
-        "<br><br>" +
-        error
-      );
-
+    // Request camera permission first so camera labels become available.
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" } },
+      audio: false
     });
+    stream.getTracks().forEach(function(track) { track.stop(); });
 
+    const cameras = await Html5Qrcode.getCameras();
+    if (!cameras || cameras.length === 0) {
+      throw new Error("Is mobile mein camera detect nahi hua.");
+    }
+
+    let cameraId = cameras[0].id;
+    for (let i = 0; i < cameras.length; i++) {
+      const label = String(cameras[i].label || "").toLowerCase();
+      if (label.includes("back") || label.includes("rear") || label.includes("environment")) {
+        cameraId = cameras[i].id;
+        break;
+      }
+    }
+
+    const reader = document.getElementById("reader");
+    reader.innerHTML = "";
+    scanner = new Html5Qrcode("reader");
+
+    await scanner.start(
+      cameraId,
+      {
+        fps: 10,
+        qrbox: function(width, height) {
+          const size = Math.max(180, Math.min(300, Math.floor(Math.min(width, height) * 0.65)));
+          return { width: size, height: size };
+        }
+      },
+      onScanSuccess,
+      function() { /* normal no-QR frames are ignored */ }
+    );
+
+    scannerRunning = true;
+    showMessage("📷 Camera ready hai.<br>Employee QR code camera ke saamne rakhiye.");
+  } catch (error) {
+    console.error("CAMERA START ERROR:", error);
+    showMessage("❌ Camera start nahi hua.<br><b>" +
+      escapeHtml(error.name || "Camera Error") + "</b><br>" +
+      escapeHtml(error.message || String(error)));
+  } finally {
+    restartButton.disabled = false;
+  }
+}
+
+async function stopCamera() {
+  if (scanner && scannerRunning) {
+    try { await scanner.stop(); } catch (err) { console.warn(err); }
+    try { await scanner.clear(); } catch (err) { console.warn(err); }
+  }
+  scannerRunning = false;
+}
+
+async function onScanSuccess(decodedText) {
+  if (!scannerRunning || requestInProgress) return;
+
+  const employeeId = String(decodedText || "").trim().toUpperCase();
+  if (!employeeId) return;
+
+  requestInProgress = true;
+  await stopCamera();
+
+  showMessage("👤 Employee ID: " + escapeHtml(employeeId) +
+    "<br><br>📍 Mobile location check ho rahi hai...");
+
+  if (!navigator.geolocation) {
+    showMessage("❌ Is device/browser mein location service available nahi hai.");
+    requestInProgress = false;
+    restartCameraAfterDelay();
     return;
   }
 
-
-  // ==========================================
-  // REGISTERED MOBILE → AUTOMATIC ATTENDANCE
-  // ==========================================
-
-  showMessage(
-    "📱 Registered mobile detected." +
-    "<br><br>📍 Location check ho rahi hai..."
-  );
-
-
   navigator.geolocation.getCurrentPosition(
+    async function(position) {
+      try {
+        showMessage("👤 Employee: " + escapeHtml(employeeId) +
+          "<br><br>📍 Location mil gayi. Attendance process ho rahi hai...");
 
-    function(position) {
+        const result = await callAppsScript({
+          action: "punch",
+          employeeId: employeeId,
+          latitude: String(position.coords.latitude),
+          longitude: String(position.coords.longitude)
+        });
 
-      const latitude =
-        position.coords.latitude;
-
-      const longitude =
-        position.coords.longitude;
-
-
-      showMessage(
-        "📍 Location mil gayi." +
-        "<br><br>⏳ Attendance save ho rahi hai..."
-      );
-
-
-      const punchUrl =
-        APPS_SCRIPT_URL +
-        "?action=devicePunch" +
-        "&deviceId=" +
-        encodeURIComponent(deviceId) +
-        "&latitude=" +
-        encodeURIComponent(latitude) +
-        "&longitude=" +
-        encodeURIComponent(longitude);
-
-
-      fetch(punchUrl, {
-        method: "GET",
-        mode: "no-cors"
-      })
-
-      .then(function() {
-
-        showMessage(
-          "✅ Attendance request send ho gayi!" +
-          "<br><br>📱 Registered mobile se punch complete." +
-          "<br><br>📷 Scanner dobara start ho raha hai..."
-        );
-
-
-        setTimeout(function() {
-
-          scanning = true;
-
-          showMessage(
-            "📷 QR Code scan karein"
-          );
-
-          startCamera();
-
-        }, 2500);
-
-      })
-
-      .catch(function(error) {
-
-        scanning = true;
-
-        showMessage(
-          "❌ Attendance request nahi bheji gayi." +
-          "<br><br>" +
-          error
-        );
-
-      });
-
+        if (result && result.success) {
+          showMessage("✅ " + escapeHtml(result.message || "Attendance marked") +
+            (result.distance !== undefined ? "<br><br>📍 Distance: " +
+              escapeHtml(String(result.distance)) + " meter" : ""));
+        } else {
+          showMessage("❌ " + escapeHtml(result && result.message ?
+            result.message : "Server se valid response nahi mila."));
+        }
+      } catch (error) {
+        console.error("ATTENDANCE API ERROR:", error);
+        showMessage("❌ Connection Error<br><br>" + escapeHtml(error.message || String(error)));
+      } finally {
+        requestInProgress = false;
+        restartCameraAfterDelay();
+      }
     },
-
-
     function(error) {
-
-      scanning = true;
-
-      let msg =
-        "❌ GPS location nahi mil rahi.";
-
-      if (error.code === 1) {
-        msg =
-          "❌ Location permission allow karein.";
-      }
-
-      if (error.code === 2) {
-        msg =
-          "❌ Location available nahi hai.";
-      }
-
-      if (error.code === 3) {
-        msg =
-          "❌ Location timeout.";
-      }
-
-      showMessage(msg);
-
+      let message = "❌ Mobile ki location nahi mil rahi.";
+      if (error.code === 1) message = "❌ Location permission DENIED hai. Browser settings mein Location = Allow karein.";
+      if (error.code === 2) message = "❌ Location unavailable hai. Mobile Location/GPS ON karein.";
+      if (error.code === 3) message = "❌ Location request timeout. Khuli jagah par dobara try karein.";
+      showMessage(message);
+      requestInProgress = false;
+      restartCameraAfterDelay();
     },
-
-
     {
       enableHighAccuracy: true,
-      timeout: 15000,
+      timeout: 20000,
       maximumAge: 0
     }
-
   );
-
-  return;
 }
 
- 
-  showMessage(
-
-    "👤 Employee ID: " +
-    employeeId +
-
-    "<br><br>📍 Location check ho rahi hai..."
-
-  );
-
-
-  // Stop camera
-  html5QrCode.stop().catch(function() {});
-
-
-  // ========================================
-  // GET GPS LOCATION
-  // ========================================
-
-  navigator.geolocation.getCurrentPosition(
-
-    function(position) {
-
-
-      const latitude =
-        position.coords.latitude;
-
-      const longitude =
-        position.coords.longitude;
-
-
-      showMessage(
-
-        "👤 Employee: " +
-        employeeId +
-
-        "<br><br>📍 Location mil gayi" +
-
-        "<br><br>⏳ Attendance save ho rahi hai..."
-
-      );
-
-
-      // ====================================
-      // APPS SCRIPT REQUEST URL
-      // ====================================
-
-      const url =
-
-        APPS_SCRIPT_URL +
-
-        "?action=punch" +
-
-        "&employeeId=" +
-        encodeURIComponent(employeeId) +
-
-        "&latitude=" +
-        encodeURIComponent(latitude) +
-
-        "&longitude=" +
-        encodeURIComponent(longitude);
-
-
-      // ====================================
-      // SEND REQUEST
-      // ====================================
-
-      fetch(url, {
-
-        method: "GET",
-
-        mode: "no-cors"
-
-      })
-
-      .then(function() {
-
-
-        showMessage(
-
-          "✅ Attendance save ho gayi!" +
-
-          "<br><br>👤 Employee: " +
-          employeeId +
-
-          "<br><br>📷 Scanner dobara start ho raha hai..."
-
-        );
-
-
-        // ==================================
-        // RESTART CAMERA
-        // ==================================
-
-        setTimeout(function() {
-
-
-          scanning = true;
-
-
-          document.getElementById("message").innerHTML =
-            "📷 QR Code scan karein";
-
-
-          startCamera();
-
-
-        }, 2500);
-
-
-      })
-
-      .catch(function(error) {
-
-
-        scanning = true;
-
-
-        showMessage(
-
-          "❌ Request send nahi hui." +
-
-          "<br><br>" +
-
-          error
-
-        );
-
-
-      });
-
-
-    },
-
-
-    // ======================================
-    // GPS ERROR
-    // ======================================
-
-    function(error) {
-
-
-      scanning = true;
-
-
-      let msg =
-        "❌ GPS location nahi mil rahi.";
-
-
-      if (error.code === 1) {
-
-        msg =
-          "❌ Location permission allow karein.";
-
-      }
-
-
-      if (error.code === 2) {
-
-        msg =
-          "❌ Location available nahi hai.";
-
-      }
-
-
-      if (error.code === 3) {
-
-        msg =
-          "❌ Location timeout.";
-
-      }
-
-
-      showMessage(msg);
-
-    },
-
-
-    // ======================================
-    // GPS OPTIONS
-    // ======================================
-
-    {
-
-      enableHighAccuracy: true,
-
-      timeout: 15000,
-
-      maximumAge: 0
-
-    }
-
-  );
-
+function restartCameraAfterDelay() {
+  setTimeout(function() {
+    if (!requestInProgress) startCamera();
+  }, 3500);
 }
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, function(ch) {
+    return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch];
+  });
+}
 
-// ==========================================
-// START CAMERA WHEN PAGE OPENS
-// ==========================================
-
-startCamera();
-
-
+window.addEventListener("load", function() {
+  startCamera();
+});
 </script>
-
 </body>
 </html>
