@@ -30,7 +30,7 @@ body>.small{display:block;max-width:500px;margin:16px auto;color:#61758a;line-he
 <script>
 "use strict";
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyELaImMD8SFldqOivMAWlGNAxczMp2EFq-e5MTSmpQNC_1LAj6LWnx_Yd7W95XrJeD/exec";
-const MASTER_QR_TEXT="MASTER_REGISTER", DEVICE_STORAGE_KEY="QR_DEVICE_ID";
+const MASTER_QR_TEXT="MASTER_REGISTER", DEVICE_STORAGE_KEY="QR_DEVICE_ID", DEVICE_VERIFIED_KEY="QR_DEVICE_VERIFIED";
 const PUNCH_DB_NAME="BP_Attendance_Queue", PUNCH_STORE="punches";
 let scanner=null,scannerRunning=false,busy=false,callbackCounter=0,forceRegistration=false,pendingDeviceId="",adminToken="",syncBusy=false;
 function setSyncBadge(text,cls){const el=document.getElementById("syncBadge");el.textContent=text;el.className=cls||"";}
@@ -58,9 +58,27 @@ scannerRunning=true;msg("📷 Camera ready hai.<br>Admin Master QR camera ke saa
 async function stopCamera(){if(scanner&&scannerRunning){try{await scanner.stop();}catch(e){}try{await scanner.clear();}catch(e){}}scannerRunning=false;}
 async function onScan(text){if(!scannerRunning||busy)return;if(String(text||"").trim()!==MASTER_QR_TEXT){msg("⚠️ Yeh Admin Master QR nahi hai. Wahi Master QR scan karein.");return;}
 busy=true;await stopCamera();pendingDeviceId=deviceId();if(forceRegistration){forceRegistration=false;showRegistration();return;}
-msg("🔐 Mobile registration check ho rahi hai...");try{const r=await api({action:"deviceStatus",deviceId:pendingDeviceId});
-if(r?.success&&r.registered){punchWithGPS();}else if(r?.success&&!r.registered){openAdminAuth(true);}else{busy=false;msg("❌ Device check nahi hua: "+esc(r?.message||"Server error"));restartLater();}
-}catch(e){busy=false;msg("❌ Server connection error<br>"+esc(e.message||e));restartLater();}}
+  // Offline mode: only queue locally if this device was previously verified as registered online.
+  if(!navigator.onLine){
+    if(localStorage.getItem(DEVICE_VERIFIED_KEY)!==pendingDeviceId){
+      busy=false;msg("❌ Offline registration verify nahi ho sakti. Is mobile ko pehle Internet ke saath verify karein.");restartLater();return;
+    }
+    msg("📴 Internet nahi hai. Punch local queue mein save kiya ja raha hai...");
+    punchWithGPS();return;
+  }
+  msg("🔐 Mobile registration check ho rahi hai...");try{const r=await api({action:"deviceStatus",deviceId:pendingDeviceId});
+    if(r?.success&&r.registered){localStorage.setItem(DEVICE_VERIFIED_KEY,pendingDeviceId);punchWithGPS();}
+    else if(r?.success&&!r.registered){localStorage.removeItem(DEVICE_VERIFIED_KEY);openAdminAuth(true);}
+    else{busy=false;msg("❌ Device check nahi hua: "+esc(r?.message||"Server error"));restartLater();}
+  }catch(e){
+    // Network may have dropped between scan and device-status request.
+    if(!navigator.onLine && localStorage.getItem(DEVICE_VERIFIED_KEY)===pendingDeviceId){
+      msg("📴 Network chala gaya. Punch local queue mein save kiya ja raha hai...");
+      punchWithGPS();
+    } else {
+      busy=false;msg("❌ Server connection error<br>"+esc(e.message||e));restartLater();
+    }
+  }}
 function showRegistration(){document.getElementById("adminPanel").style.display="none";document.getElementById("registerPanel").style.display="block";document.getElementById("employeeId").value="";msg("📋 Master QR scan ho gaya.<br>Admin Employee ID / Number enter karke OK karein.");document.getElementById("employeeId").focus();}
 function cancelRegistration(){document.getElementById("registerPanel").style.display="none";pendingDeviceId="";busy=false;msg("Registration cancel hua. Dobara Master QR scan karein.");restartLater();}
 async function submitRegistration(){const emp=document.getElementById("employeeId").value.trim().toUpperCase();if(!emp){msg("❌ Employee ID enter karein.");return;}const buttons=document.querySelectorAll("#registerActions button");buttons.forEach(b=>b.disabled=true);msg("⏳ "+esc(emp)+" ka mobile register ho raha hai...");
