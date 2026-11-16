@@ -4,12 +4,17 @@
 <meta name="theme-color" content="#123b63"><title>Blue Packaging QR Attendance</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
-*{box-sizing:border-box}body{font-family:Arial,sans-serif;text-align:center;margin:0;padding:16px;background:#f3f6fa;color:#172b40}
-h2{margin:10px 0 16px}#reader{width:100%;max-width:500px;margin:auto;background:#fff;border-radius:12px;padding:8px;min-height:80px;overflow:hidden}
-#message{margin:18px auto;max-width:500px;padding:16px;border-radius:10px;background:#fff;font-size:17px;font-weight:600;line-height:1.45;overflow-wrap:anywhere}
-.small{font-size:13px;color:#5d6b78;font-weight:normal}button{border:0;border-radius:8px;padding:12px 16px;background:#123b63;color:#fff;font-size:15px;margin:6px}
-.secondary{background:#536779}button:disabled{opacity:.5}#adminPanel{display:none;max-width:500px;margin:12px auto;background:#fff;padding:16px;border-radius:10px;text-align:left}#adminPin{width:100%;padding:12px;border:1px solid #aab7c4;border-radius:7px;font-size:22px;letter-spacing:8px;text-align:center}#adminPanel label{display:block;font-weight:bold;margin-bottom:8px}#adminActions{text-align:right;margin-top:10px}#registerPanel{display:none;max-width:500px;margin:12px auto;background:#fff;padding:16px;border-radius:10px;text-align:left}
-#registerPanel label{display:block;font-weight:bold;margin-bottom:8px}#employeeId{width:100%;padding:12px;border:1px solid #aab7c4;border-radius:7px;font-size:17px;text-transform:uppercase}#registerActions{text-align:right;margin-top:10px}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;text-align:center;margin:0;min-height:100vh;padding:18px 14px 28px;background:linear-gradient(145deg,#eaf2fb 0%,#f5f8fc 48%,#e3edf8 100%);color:#142b43}
+h2{margin:12px auto 20px;max-width:520px;font-size:clamp(25px,6vw,34px);line-height:1.18;font-weight:800;letter-spacing:-.4px;color:#123b63;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+#reader{width:100%;max-width:500px;margin:0 auto;background:linear-gradient(135deg,#ffffff,#edf4fb);border:1px solid #d4e1ef;border-radius:20px;padding:10px;min-height:100px;overflow:hidden;box-shadow:0 12px 30px rgba(18,59,99,.12),inset 0 1px 0 #fff}
+#reader video{border-radius:12px!important;object-fit:cover}
+#message{margin:18px auto;max-width:500px;padding:18px 16px;border:1px solid #dce7f2;border-radius:16px;background:rgba(255,255,255,.94);box-shadow:0 8px 22px rgba(24,58,91,.07);font-size:17px;font-weight:700;line-height:1.45;overflow-wrap:anywhere;color:#17334f}
+.small{font-size:13px;color:#61758a;font-weight:normal}button{border:0;border-radius:11px;padding:13px 18px;background:linear-gradient(135deg,#174b78,#0d3458);color:#fff;font-size:15px;font-weight:700;margin:7px;box-shadow:0 5px 12px rgba(13,52,88,.16);cursor:pointer}
+button:active{transform:translateY(1px)}.secondary{background:linear-gradient(135deg,#667b90,#4d6277)}button:disabled{opacity:.5;box-shadow:none}
+#adminPanel{display:none;max-width:500px;margin:14px auto;background:#fff;padding:18px;border:1px solid #dce7f2;border-radius:16px;text-align:left;box-shadow:0 8px 22px rgba(24,58,91,.08)}#adminPin{width:100%;padding:14px;border:1px solid #b8c9da;border-radius:10px;font-size:22px;letter-spacing:8px;text-align:center}#adminPanel label{display:block;font-weight:bold;margin-bottom:8px;color:#173b5e}#adminActions{text-align:right;margin-top:12px}
+#registerPanel{display:none;max-width:500px;margin:14px auto;background:#fff;padding:18px;border:1px solid #dce7f2;border-radius:16px;text-align:left;box-shadow:0 8px 22px rgba(24,58,91,.08)}#registerPanel label{display:block;font-weight:bold;margin-bottom:8px;color:#173b5e}#employeeId{width:100%;padding:14px;border:1px solid #b8c9da;border-radius:10px;font-size:17px;text-transform:uppercase}#registerActions{text-align:right;margin-top:12px}
+body>.small{display:block;max-width:500px;margin:16px auto;color:#61758a;line-height:1.5}
 </style></head><body>
 <h2>Blue Packaging – QR Attendance</h2><div id="reader"></div>
 <div id="message">Camera start ho raha hai...<div class="small">Camera aur Location permission Allow karein.</div></div>
