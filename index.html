@@ -16,8 +16,55 @@ button:active{transform:translateY(1px)}.secondary{background:linear-gradient(13
 #registerPanel{display:none;max-width:500px;margin:14px auto;background:#fff;padding:18px;border:1px solid #dce7f2;border-radius:16px;text-align:left;box-shadow:0 8px 22px rgba(24,58,91,.08)}#registerPanel label{display:block;font-weight:bold;margin-bottom:8px;color:#173b5e}#employeeId{width:100%;padding:14px;border:1px solid #b8c9da;border-radius:10px;font-size:17px;text-transform:uppercase}#registerActions{text-align:right;margin-top:12px}
 #syncBadge{display:inline-block;margin:8px auto;padding:8px 14px;border-radius:20px;background:#e8f1fb;color:#123b63;font-size:13px;font-weight:700}.pending{background:#fff4d6!important;color:#8a5a00!important}.synced{background:#e4f6e9!important;color:#176b35!important}.failed{background:#fde8e8!important;color:#9b1c1c!important}
 body>.small{display:block;max-width:500px;margin:16px auto;color:#61758a;line-height:1.5}
+
+:root{--navy:#0d3159;--blue:#0878c9;--sky:#63c5f4;--ink:#102f52;--muted:#5d7188}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;text-align:center;margin:0;min-height:100vh;padding:0 0 30px;background:linear-gradient(180deg,#f7fbff 0%,#e8f3ff 54%,#f8fbff 100%);color:var(--ink);overflow-x:hidden}
+.brand-header{position:relative;max-width:760px;margin:0 auto 20px;padding:20px 18px 0;overflow:hidden;background:linear-gradient(115deg,#fff 0%,#eff8ff 58%,#d8efff 100%);border-bottom:1px solid #b9ddf7;box-shadow:0 7px 24px rgba(16,72,122,.09)}
+.brand-header:before{content:"";position:absolute;left:-8%;right:-8%;bottom:0;height:55px;background:linear-gradient(165deg,transparent 0 28%,#8bd7ff 29% 47%,#168bd5 48% 67%,#07549a 68%);opacity:.9;clip-path:polygon(0 35%,22% 0,45% 48%,68% 15%,100% 42%,100% 100%,0 100%)}
+.brand-top{position:relative;z-index:1;display:flex;align-items:center;gap:12px;max-width:620px;margin:0 auto 16px;text-align:left;min-height:86px}
+.brand-mark{width:62px;height:62px;flex:0 0 62px;position:relative;transform:rotate(-2deg)}
+.brand-mark span{position:absolute;left:9px;top:2px;width:44px;height:27px;background:linear-gradient(145deg,#36a9f4,#0864b5);clip-path:polygon(50% 0,100% 30%,50% 62%,0 30%);filter:drop-shadow(0 3px 2px #8cbde0)}
+.brand-mark i{position:absolute;left:9px;top:18px;width:44px;height:35px;background:linear-gradient(135deg,#0b75c8,#063f7c);clip-path:polygon(0 0,50% 28%,50% 100%,0 70%)}
+.brand-mark b{position:absolute;left:31px;top:18px;width:22px;height:35px;background:linear-gradient(145deg,#79d5ff,#1686d0);clip-path:polygon(0 28%,100% 0,100% 70%,0 100%)}
+.brand-copy{min-width:0}.brand-name{font-size:clamp(25px,6vw,38px);font-weight:900;letter-spacing:-1.1px;line-height:1;color:#103c70;white-space:nowrap}.brand-subtitle{font-size:12px;letter-spacing:2.1px;font-weight:800;color:#315b83;margin-top:7px}
+.brand-accent{height:62px;width:2px;background:linear-gradient(#69c8f5,#1686d0);margin-left:auto}
+.factory-art{height:66px;width:118px;flex:0 0 118px;position:relative;align-self:flex-end;background:linear-gradient(180deg,#d9f0ff,#9bc9e9);clip-path:polygon(0 42%,18% 42%,18% 18%,33% 18%,33% 35%,55% 35%,55% 0,100% 0,100% 100%,0 100%)}
+.factory-art:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 15px,rgba(255,255,255,.8) 16px 19px),linear-gradient(180deg,#eaf8ff,#7eadd2)}
+.factory-art span{position:absolute;bottom:0;width:13px;height:25px;background:#fff;opacity:.9}.factory-art span:nth-child(1){left:18px}.factory-art span:nth-child(2){left:43px}.factory-art span:nth-child(3){left:68px}.factory-art i{position:absolute;right:10px;bottom:0;width:25px;height:38px;background:#edf8ff;border:2px solid #76a8cb}
+.attendance-ribbon{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:13px;max-width:490px;margin:0 auto 0;padding:13px 18px;border-radius:28px 28px 0 0;background:linear-gradient(105deg,#0c315c,#145a9a);color:white;font-size:clamp(21px,5vw,29px);font-weight:900;letter-spacing:.5px;box-shadow:0 8px 20px rgba(7,59,105,.2)}
+.qr-symbol{font-size:34px;line-height:1;color:#dff5ff}
+.app-main{max-width:760px;margin:0 auto;padding:18px 18px 24px}
+#reader{width:100%;max-width:620px;margin:0 auto;background:linear-gradient(145deg,#101820,#263746);border:5px solid #fff;border-radius:28px;padding:10px;min-height:220px;overflow:hidden;box-shadow:0 14px 30px rgba(12,55,94,.2),0 0 0 1px #b8d9ef}
+#reader video{border-radius:18px!important;object-fit:cover}
+#reader__dashboard_section_csr button,#reader button{border-radius:10px!important}
+#syncBadge{display:inline-block;margin:15px auto 5px;padding:10px 18px;border-radius:24px;background:#e8f1fb;color:#123b63;font-size:14px;font-weight:800;box-shadow:0 3px 10px rgba(19,69,112,.06)}
+#message{margin:16px auto 22px;max-width:620px;padding:20px 18px;border:1px solid #d8e8f5;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 9px 24px rgba(24,74,117,.09);font-size:clamp(17px,4vw,21px);font-weight:800;line-height:1.45;overflow-wrap:anywhere;color:#173b62}
+.small{font-size:14px;color:#5c7188;font-weight:500;line-height:1.5}
+button{border:1px solid rgba(255,255,255,.55);border-radius:15px;padding:16px 20px;background:linear-gradient(135deg,#1688d1,#07519a);color:#fff;font-size:16px;font-weight:800;margin:8px 6px;min-height:58px;box-shadow:0 7px 16px rgba(8,75,133,.2);cursor:pointer;transition:transform .12s,filter .12s}
+button:active{transform:translateY(1px);filter:brightness(.96)}.secondary{background:linear-gradient(135deg,#71869a,#465d74)}button:disabled{opacity:.5;box-shadow:none}
+#restartButton,#registerPanel~div button{min-width:min(100%,235px)}
+.app-main>div:has(>#restartButton){display:flex;justify-content:center;align-items:stretch;gap:10px;flex-wrap:wrap;max-width:620px;margin:8px auto 0}
+.app-main>div:has(>#restartButton) button{flex:1 1 220px;margin:5px 0}
+#adminPanel,#registerPanel{display:none;max-width:620px;margin:16px auto;background:#fff;padding:20px;border:1px solid #d6e7f5;border-radius:22px;text-align:left;box-shadow:0 9px 24px rgba(24,74,117,.09)}
+#adminPin,#employeeId{width:100%;padding:15px;border:1px solid #b8cfe2;border-radius:12px;font-size:19px;background:#f9fcff;color:#173b62}
+#adminPin{letter-spacing:8px;text-align:center}#adminPanel label,#registerPanel label{display:block;font-weight:800;margin-bottom:9px;color:#173b62}#adminActions,#registerActions{text-align:right;margin-top:14px}
+.pending{background:#fff4d6!important;color:#8a5a00!important}.synced{background:#e2f7e9!important;color:#176b35!important}.failed{background:#fde8e8!important;color:#9b1c1c!important}
+.footer-note{display:block;max-width:620px;margin:18px auto 0;padding:14px 16px;border:1px solid #c7e3fa;border-radius:18px;background:linear-gradient(110deg,#e5f4ff,#d8edff);color:#173b62;font-size:13px;font-weight:700;line-height:1.5;text-align:left}
+@media(max-width:430px){.brand-header{padding:15px 12px 0}.brand-top{gap:8px;min-height:72px}.brand-mark{width:49px;height:54px;flex-basis:49px;transform:scale(.85);transform-origin:left center}.brand-name{font-size:clamp(22px,6vw,29px);letter-spacing:-.8px}.brand-subtitle{font-size:9px;letter-spacing:1.5px}.brand-accent{height:48px}.factory-art{width:68px;flex-basis:68px;height:48px}.app-main{padding:15px 14px 22px}#reader{min-height:200px;border-radius:23px;padding:7px}#message{padding:17px 14px}.app-main>div:has(>#restartButton){flex-direction:column;max-width:310px}.app-main>div:has(>#restartButton) button{width:100%;flex:auto}.footer-note{text-align:center}}
+
 </style></head><body>
-<h2>Blue Packaging – QR Attendance</h2><div id="reader"></div>
+<header class="brand-header">
+  <div class="brand-top">
+    <div class="brand-mark" aria-hidden="true"><span></span><i></i><b></b></div>
+    <div class="brand-copy"><div class="brand-name">Blue Packaging</div><div class="brand-subtitle">PP BOX MANUFACTURING</div></div>
+    <div class="brand-accent" aria-hidden="true"></div>
+    <div class="factory-art" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
+  </div>
+  <div class="attendance-ribbon"><span class="qr-symbol" aria-hidden="true">▦</span><span>QR ATTENDANCE</span></div>
+</header>
+<main class="app-main">
+<div id="reader"></div>
 <div id="syncBadge">Sync status: Ready</div><div id="message">Camera start ho raha hai...<div class="small">Camera aur Location permission Allow karein.</div></div>
 <div id="adminPanel"><label for="adminPin">Admin PIN (4 digits)</label><input id="adminPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"><div class="small">Sirf authorized Admin ka PIN. PIN screen par hidden rahega.</div><div id="adminActions"><button class="secondary" type="button" onclick="cancelAdminAuth()">Cancel</button><button type="button" onclick="submitAdminPin()">Verify Admin</button></div></div>
 <div id="registerPanel"><label for="employeeId">Admin: Employee ID / Employee Number</label>
@@ -26,7 +73,8 @@ body>.small{display:block;max-width:500px;margin:16px auto;color:#61758a;line-he
 <div id="registerActions"><button class="secondary" type="button" onclick="cancelRegistration()">Cancel</button><button type="button" onclick="submitRegistration()">OK – Register Mobile</button></div></div>
 <div><button id="restartButton" type="button" onclick="startCamera()">Restart Camera</button>
 <button class="secondary" type="button" onclick="armChangeRegistration()">Register / Change Mobile</button></div>
-<div class="small">Attendance: pehla Master QR scan = IN, agla scan = FINAL OUT. Lunch ka 30 minute fixed deduction Settings se ON/OFF hoga. Mobile change ke liye Admin PIN zaroori hai.</div>
+<div class="small footer-note">Attendance: pehla Master QR scan = IN, agla scan = FINAL OUT. Lunch ka 30 minute fixed deduction Settings se ON/OFF hoga. Mobile change ke liye Admin PIN zaroori hai.</div>
+</main>
 <script>
 "use strict";
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyELaImMD8SFldqOivMAWlGNAxczMp2EFq-e5MTSmpQNC_1LAj6LWnx_Yd7W95XrJeD/exec";
